@@ -1,4 +1,5 @@
 """Config flow for the Panasonic Comfort Cloud platform."""
+
 import asyncio
 import logging
 from typing import Any, Dict, Optional, Mapping
@@ -24,7 +25,8 @@ from .const import (
     CONF_ENERGY_FETCH_INTERVAL,
     DEFAULT_ENERGY_FETCH_INTERVAL,
     CONF_FORCE_ENABLE_NANOE,
-    DEFAULT_FORCE_ENABLE_NANOE)
+    DEFAULT_FORCE_ENABLE_NANOE,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -49,16 +51,19 @@ class FlowHandler(config_entries.ConfigFlow, domain=PANASONIC_DOMAIN):
             if entry.data[KEY_DOMAIN] == PANASONIC_DOMAIN:
                 return self.async_abort(reason="already_configured")
 
-        return self.async_create_entry(title="", data={
-            CONF_USERNAME: username,
-            CONF_PASSWORD: password,
-            CONF_FORCE_OUTSIDE_SENSOR: False,
-            CONF_FORCE_ENABLE_NANOE: DEFAULT_FORCE_ENABLE_NANOE,
-            CONF_ENABLE_DAILY_ENERGY_SENSOR: DEFAULT_ENABLE_DAILY_ENERGY_SENSOR,
-            CONF_USE_PANASONIC_PRESET_NAMES: DEFAULT_USE_PANASONIC_PRESET_NAMES,
-            CONF_DEVICE_FETCH_INTERVAL: DEFAULT_DEVICE_FETCH_INTERVAL,
-            CONF_ENERGY_FETCH_INTERVAL: DEFAULT_ENERGY_FETCH_INTERVAL,
-        })
+        return self.async_create_entry(
+            title="",
+            data={
+                CONF_USERNAME: username,
+                CONF_PASSWORD: password,
+                CONF_FORCE_OUTSIDE_SENSOR: False,
+                CONF_FORCE_ENABLE_NANOE: DEFAULT_FORCE_ENABLE_NANOE,
+                CONF_ENABLE_DAILY_ENERGY_SENSOR: DEFAULT_ENABLE_DAILY_ENERGY_SENSOR,
+                CONF_USE_PANASONIC_PRESET_NAMES: DEFAULT_USE_PANASONIC_PRESET_NAMES,
+                CONF_DEVICE_FETCH_INTERVAL: DEFAULT_DEVICE_FETCH_INTERVAL,
+                CONF_ENERGY_FETCH_INTERVAL: DEFAULT_ENERGY_FETCH_INTERVAL,
+            },
+        )
 
     async def _create_device(self, username, password):
         """Create device."""
@@ -86,35 +91,40 @@ class FlowHandler(config_entries.ConfigFlow, domain=PANASONIC_DOMAIN):
 
     async def async_step_user(self, user_input=None):
         """User initiated config flow."""
-        
+
         if user_input is None:
             return self.async_show_form(
-                step_id="user", data_schema=vol.Schema({
-                    vol.Required(CONF_USERNAME): str,
-                    vol.Required(CONF_PASSWORD): str,                    
-                    vol.Optional(
-                        CONF_ENABLE_DAILY_ENERGY_SENSOR,
-                        default=DEFAULT_ENABLE_DAILY_ENERGY_SENSOR,
-                    ): bool,
-                    vol.Optional(
-                        CONF_FORCE_ENABLE_NANOE,
-                        default=False,
-                    ): bool,
-                    vol.Optional(
-                        CONF_USE_PANASONIC_PRESET_NAMES,
-                        default=DEFAULT_USE_PANASONIC_PRESET_NAMES,
-                    ): bool,
-                    vol.Optional(
-                        CONF_DEVICE_FETCH_INTERVAL,
-                        default=DEFAULT_DEVICE_FETCH_INTERVAL,
-                    ): int,
-                    vol.Optional(
-                        CONF_ENERGY_FETCH_INTERVAL,
-                        default=DEFAULT_ENERGY_FETCH_INTERVAL,
-                    ): int,
-                })
+                step_id="user",
+                data_schema=vol.Schema(
+                    {
+                        vol.Required(CONF_USERNAME): str,
+                        vol.Required(CONF_PASSWORD): str,
+                        vol.Optional(
+                            CONF_ENABLE_DAILY_ENERGY_SENSOR,
+                            default=DEFAULT_ENABLE_DAILY_ENERGY_SENSOR,
+                        ): bool,
+                        vol.Optional(
+                            CONF_FORCE_ENABLE_NANOE,
+                            default=False,
+                        ): bool,
+                        vol.Optional(
+                            CONF_USE_PANASONIC_PRESET_NAMES,
+                            default=DEFAULT_USE_PANASONIC_PRESET_NAMES,
+                        ): bool,
+                        vol.Optional(
+                            CONF_DEVICE_FETCH_INTERVAL,
+                            default=DEFAULT_DEVICE_FETCH_INTERVAL,
+                        ): int,
+                        vol.Optional(
+                            CONF_ENERGY_FETCH_INTERVAL,
+                            default=DEFAULT_ENERGY_FETCH_INTERVAL,
+                        ): int,
+                    }
+                ),
             )
-        return await self._create_device(user_input[CONF_USERNAME], user_input[CONF_PASSWORD])
+        return await self._create_device(
+            user_input[CONF_USERNAME], user_input[CONF_PASSWORD]
+        )
 
     async def async_step_import(self, user_input):
         """Import a config entry."""
@@ -122,7 +132,7 @@ class FlowHandler(config_entries.ConfigFlow, domain=PANASONIC_DOMAIN):
         if not username:
             return await self.async_step_user()
         return await self._create_device(username, user_input[CONF_PASSWORD])
-    
+
     async def async_step_reconfigure(
         self, entry_data: Mapping[str, Any]
     ) -> config_entries.ConfigFlowResult:
@@ -155,7 +165,6 @@ class FlowHandler(config_entries.ConfigFlow, domain=PANASONIC_DOMAIN):
             _LOGGER.exception("Unexpected error creating device", e)
             return {"base": "device_fail"}
 
-
         return {}
 
     async def async_step_reconfigure_confirm(
@@ -174,13 +183,14 @@ class FlowHandler(config_entries.ConfigFlow, domain=PANASONIC_DOMAIN):
 
         return self.async_show_form(
             step_id="reconfigure_confirm",
-            data_schema=vol.Schema({
-                vol.Required(CONF_USERNAME): str,
-                vol.Required(CONF_PASSWORD): str,
-                }),
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_USERNAME): str,
+                    vol.Required(CONF_PASSWORD): str,
+                }
+            ),
             errors=errors,
         )
-
 
 
 class PanasonicOptionsFlowHandler(config_entries.OptionsFlow):
@@ -191,7 +201,7 @@ class PanasonicOptionsFlowHandler(config_entries.OptionsFlow):
         self.config_entry = config_entry
 
     async def async_step_init(
-            self, user_input: Optional[Dict[str, Any]] = None
+        self, user_input: Optional[Dict[str, Any]] = None
     ) -> config_entries.ConfigFlowResult:
         """Manage Panasonic options."""
         if user_input is not None:
@@ -204,7 +214,8 @@ class PanasonicOptionsFlowHandler(config_entries.OptionsFlow):
                     vol.Optional(
                         CONF_ENABLE_DAILY_ENERGY_SENSOR,
                         default=self.config_entry.options.get(
-                            CONF_ENABLE_DAILY_ENERGY_SENSOR, DEFAULT_ENABLE_DAILY_ENERGY_SENSOR
+                            CONF_ENABLE_DAILY_ENERGY_SENSOR,
+                            DEFAULT_ENABLE_DAILY_ENERGY_SENSOR,
                         ),
                     ): bool,
                     vol.Optional(
@@ -216,7 +227,8 @@ class PanasonicOptionsFlowHandler(config_entries.OptionsFlow):
                     vol.Optional(
                         CONF_USE_PANASONIC_PRESET_NAMES,
                         default=self.config_entry.options.get(
-                            CONF_USE_PANASONIC_PRESET_NAMES, DEFAULT_USE_PANASONIC_PRESET_NAMES
+                            CONF_USE_PANASONIC_PRESET_NAMES,
+                            DEFAULT_USE_PANASONIC_PRESET_NAMES,
                         ),
                     ): bool,
                     vol.Optional(

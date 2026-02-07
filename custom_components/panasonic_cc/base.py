@@ -3,7 +3,12 @@ from abc import abstractmethod
 
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .coordinator import PanasonicDeviceCoordinator, PanasonicDeviceEnergyCoordinator, AquareaDeviceCoordinator
+from .coordinator import (
+    PanasonicDeviceCoordinator,
+    PanasonicDeviceEnergyCoordinator,
+    AquareaDeviceCoordinator,
+)
+
 
 class PanasonicDataEntity(CoordinatorEntity[PanasonicDeviceCoordinator]):
 
@@ -16,7 +21,6 @@ class PanasonicDataEntity(CoordinatorEntity[PanasonicDeviceCoordinator]):
         self._attr_device_info = self.coordinator.device_info
         self._async_update_attrs()
 
-    
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
         self._async_update_attrs()
@@ -25,6 +29,7 @@ class PanasonicDataEntity(CoordinatorEntity[PanasonicDeviceCoordinator]):
     @abstractmethod
     def _async_update_attrs(self) -> None:
         """Update the attributes of the entity."""
+
 
 class PanasonicEnergyEntity(CoordinatorEntity[PanasonicDeviceEnergyCoordinator]):
 
@@ -37,7 +42,6 @@ class PanasonicEnergyEntity(CoordinatorEntity[PanasonicDeviceEnergyCoordinator])
         self._attr_device_info = self.coordinator.device_info
         self._async_update_attrs()
 
-    
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
         self._async_update_attrs()
@@ -46,6 +50,7 @@ class PanasonicEnergyEntity(CoordinatorEntity[PanasonicDeviceEnergyCoordinator])
     @abstractmethod
     def _async_update_attrs(self) -> None:
         """Update the attributes of the entity."""
+
 
 class AquareaDataEntity(CoordinatorEntity[AquareaDeviceCoordinator]):
 
@@ -58,7 +63,6 @@ class AquareaDataEntity(CoordinatorEntity[AquareaDeviceCoordinator]):
         self._attr_device_info = self.coordinator.device_info
         self._async_update_attrs()
 
-    
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
         self._async_update_attrs()

@@ -4,15 +4,22 @@ from dataclasses import dataclass
 from homeassistant.core import HomeAssistant
 from homeassistant.components.select import SelectEntity, SelectEntityDescription
 
-from .const import DOMAIN, DATA_COORDINATORS, SELECT_HORIZONTAL_SWING, SELECT_VERTICAL_SWING
+from .const import (
+    DOMAIN,
+    DATA_COORDINATORS,
+    SELECT_HORIZONTAL_SWING,
+    SELECT_VERTICAL_SWING,
+)
 from aio_panasonic_comfort_cloud import PanasonicDevice, ChangeRequestBuilder, constants
 
 from .coordinator import PanasonicDeviceCoordinator
 from .base import PanasonicDataEntity
 
+
 @dataclass(frozen=True, kw_only=True)
 class PanasonicSelectEntityDescription(SelectEntityDescription):
     """Description of a select entity."""
+
     set_option: Callable[[ChangeRequestBuilder, str], ChangeRequestBuilder]
     get_current_option: Callable[[PanasonicDevice], str]
     is_available: Callable[[PanasonicDevice], bool]
@@ -20,48 +27,67 @@ class PanasonicSelectEntityDescription(SelectEntityDescription):
 
 
 HORIZONTAL_SWING_DESCRIPTION = PanasonicSelectEntityDescription(
-    key=SELECT_HORIZONTAL_SWING, 
+    key=SELECT_HORIZONTAL_SWING,
     translation_key=SELECT_HORIZONTAL_SWING,
     icon="mdi:swap-horizontal",
     name="Horizontal Swing Mode",
-    options= [opt.name for opt in constants.AirSwingLR if opt != constants.AirSwingLR.Unavailable],
-    set_option = lambda builder, new_value : builder.set_horizontal_swing(new_value),
-    get_current_option = lambda device : device.parameters.horizontal_swing_mode.name,
-    is_available = lambda device : device.has_horizontal_swing
+    options=[
+        opt.name
+        for opt in constants.AirSwingLR
+        if opt != constants.AirSwingLR.Unavailable
+    ],
+    set_option=lambda builder, new_value: builder.set_horizontal_swing(new_value),
+    get_current_option=lambda device: device.parameters.horizontal_swing_mode.name,
+    is_available=lambda device: device.has_horizontal_swing,
 )
 VERTICAL_SWING_DESCRIPTION = PanasonicSelectEntityDescription(
-    key=SELECT_VERTICAL_SWING, 
+    key=SELECT_VERTICAL_SWING,
     translation_key=SELECT_VERTICAL_SWING,
     icon="mdi:swap-vertical",
     name="Vertical Swing Mode",
-    get_options= lambda device: [opt.name for opt in constants.AirSwingUD if opt != constants.AirSwingUD.Swing or device.features.auto_swing_ud],
-    set_option = lambda builder, new_value : builder.set_vertical_swing(new_value),
-    get_current_option = lambda device : device.parameters.vertical_swing_mode.name,
-    is_available = lambda device : True
+    get_options=lambda device: [
+        opt.name
+        for opt in constants.AirSwingUD
+        if opt != constants.AirSwingUD.Swing or device.features.auto_swing_ud
+    ],
+    set_option=lambda builder, new_value: builder.set_vertical_swing(new_value),
+    get_current_option=lambda device: device.parameters.vertical_swing_mode.name,
+    is_available=lambda device: True,
 )
 
 
 async def async_setup_entry(hass: HomeAssistant, entry, async_add_entities):
     entities = []
-    data_coordinators: list[PanasonicDeviceCoordinator] = hass.data[DOMAIN][DATA_COORDINATORS]
+    data_coordinators: list[PanasonicDeviceCoordinator] = hass.data[DOMAIN][
+        DATA_COORDINATORS
+    ]
     for coordinator in data_coordinators:
-        entities.append(PanasonicSelectEntity(coordinator, HORIZONTAL_SWING_DESCRIPTION))
+        entities.append(
+            PanasonicSelectEntity(coordinator, HORIZONTAL_SWING_DESCRIPTION)
+        )
         entities.append(PanasonicSelectEntity(coordinator, VERTICAL_SWING_DESCRIPTION))
-        
+
     async_add_entities(entities)
+
 
 class PanasonicSelectEntityBase(SelectEntity):
     """Base class for all select entities."""
+
     entity_description: PanasonicSelectEntityDescription
+
 
 class PanasonicSelectEntity(PanasonicDataEntity, PanasonicSelectEntityBase):
 
-    def __init__(self, coordinator: PanasonicDeviceCoordinator, description: PanasonicSelectEntityDescription):
+    def __init__(
+        self,
+        coordinator: PanasonicDeviceCoordinator,
+        description: PanasonicSelectEntityDescription,
+    ):
         self.entity_description = description
         if description.get_options is not None:
             self._attr_options = description.get_options(coordinator.device)
         super().__init__(coordinator, description.key)
-    
+
     @property
     def available(self) -> bool:
         """Return if entity is available."""
@@ -75,5 +101,6 @@ class PanasonicSelectEntity(PanasonicDataEntity, PanasonicSelectEntityBase):
         self.async_write_ha_state()
 
     def _async_update_attrs(self) -> None:
-        self.current_option = self.entity_description.get_current_option(self.coordinator.device)
-
+        self.current_option = self.entity_description.get_current_option(
+            self.coordinator.device
+        )
